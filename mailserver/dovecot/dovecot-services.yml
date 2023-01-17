@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dovecot-entrypoint
+  namespace: mailserver
+spec:
+  selector:
+    app: dovecot
+  clusterIP: 10.96.1.11
+  ports:
+    - name: auth-service
+      port: 60400
+      targetPort: 60400
+    - name: pop3s
+      port: 995
+      targetPort: 995
+    - name: imaps
+      port: 993
+      targetPort: 993
