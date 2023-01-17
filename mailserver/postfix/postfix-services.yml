@@ -11,9 +11,6 @@ spec:
     - name: smtp
       port: 25
       targetPort: 25
-    - name: smtps
-      port: 465
-      targetPort: 465
     - name: smtp-submission
       port: 587
       targetPort: 587
