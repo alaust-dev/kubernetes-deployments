@@ -19,7 +19,8 @@ spec:
       serviceAccountName: jenkins-admin
       containers:
         - name: jenkins
-          image: jenkins/jenkins:lts
+          image: alaust/jenkins:latest
+          imagePullPolicy: Always
           resources:
             limits:
               memory: "2Gi"
@@ -51,7 +52,13 @@ spec:
           volumeMounts:
             - name: jenkins-storage
               mountPath: /var/jenkins_home
+            - name: docker
+              mountPath: /var/run/docker.sock
+              subPath: docker.sock
       volumes:
+        - name: docker
+          hostPath:
+            path: /var/run
         - name: jenkins-storage
           persistentVolumeClaim:
               claimName: jenkins-storage
