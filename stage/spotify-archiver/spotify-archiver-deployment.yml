@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postfix-deployment
+  namespace: stage
+  labels:
+    app: spotify-archiver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spotify-archiver
+  template:
+    metadata:
+      labels:
+        app: spotify-archiver
+    spec:
+      containers:
+        - name: postfix
+          image: alaust/spotify-archiver:stage
+          imagePullPolicy: Always
