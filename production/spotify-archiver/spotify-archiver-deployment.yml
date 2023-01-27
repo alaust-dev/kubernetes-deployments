@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: spotify-archiver
-  namespace: stage
+  namespace: production
   labels:
     app: spotify-archiver
 spec:
