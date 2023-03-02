@@ -1,0 +1,33 @@
+replicaCount: 1
+
+image:
+  repository: vaultwarden/server
+  tag: latest
+  pullPolicy: IfNotPresent
+
+env:
+  SIGNUPS_ALLOWED: false
+  INVITATIONS_ALLOWED: true
+  SERVER_ADMIN_EMAIL: "mail@alexander-aust.de"
+  DOMAIN: "https://bitwarden.alexander-aust.de"
+  SMTP_HOST: "commonprod01.server.alexander-aust.de"
+  SMTP_FROM: "no-reply@alexander-aust.de"
+  SMTP_PORT: 587
+  SMTP_SSL: true
+  SMTP_USERNAME: no-reply@alexander-aust.de
+  SMTP_PASSWORD: ""
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+  loadBalancerIP: 10.96.6.10
+
+ingress:
+  enabled: false
+
+persistence:
+  enabled: true
+  existingClaim: "bitwarden-storage"
