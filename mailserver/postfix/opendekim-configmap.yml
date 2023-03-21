@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opendkim-config
+  namespace: mailserver
+data:
+  opendekim.conf: |
+    Syslog                  yes
+    SyslogSuccess           yes
+    RequireSafeKeys         False
+    Canonicalization	relaxed/simple
+    Domain			alexander-aust.de
+    Selector		default
+    KeyFile			/etc/opendkim/keys/alexander-aust.de/default.private
+    Mode                    sv
+    SubDomains              yes
+    OversignHeaders         From
+    Socket                  inet:8891@localhost
+    ReportAddress           mail@alexander-aust.de
+    SendReports             yes

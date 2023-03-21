@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dovecot-deployment
+  namespace: mailserver
+  labels:
+    app: dovecot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dovecot
+  template:
+    metadata:
+      labels:
+        app: dovecot
+    spec:
+      volumes:
+      - name: dovecot-passwd-secret
+        secret:
+          secretName: dovecot-passwd-secret
+      - name: dovecot-config
+        configMap:
+          name: dovecot-config
+
+      - name: letsencrypt-fullchain-cert
+        configMap:
+          name: letsencrypt-fullchain-cert
+      - name: letsencrypt-private-key-secret
+        secret:
+          secretName: letsencrypt-private-key-secret
+
+      - name: postfix-storage
+        persistentVolumeClaim:
+          claimName: postfix-storage-claim
+      containers:
+      - name: dovecot
+        image: dovecot/dovecot:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: dovecot-passwd-secret
+          mountPath: "/etc/dovecot/passwd"
+          subPath: passwd
+        - name: dovecot-config
+          mountPath: "/etc/dovecot/dovecot.conf"
+          subPath: dovecot.conf
+
+        - name: letsencrypt-fullchain-cert
+          mountPath: "/etc/dovecot/fullchain.pem"
+          subPath: fullchain.pem
+        - name: letsencrypt-private-key-secret
+          mountPath: "/etc/dovecot/privkey.pem"
+          subPath: privkey.pem
+
+        - name: postfix-storage
+          mountPath: "/srv/mail"

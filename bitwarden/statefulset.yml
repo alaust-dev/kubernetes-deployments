@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vaultwarden
+  namespace: bitwarden
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vaultwarden
+  template:
+    metadata:
+      labels:
+        app: vaultwarden
+    spec:
+      containers:
+      - name: vaultwarden
+        image: vaultwarden/server:latest
+        imagePullPolicy: Always
+        env:
+        - name: SIGNUPS_ALLOWED
+          value: "false"
+        - name: INVITATIONS_ALLOWED
+          value: "true"
+        - name: SERVER_ADMIN_EMAIL
+          value: "mail@alexander-aust.de"
+        - name: WEBSOCKET_ENABLED
+          value: "true"
+        - name: DOMAIN
+          value: "https://bitwarden.alexander-aust.de"
+        - name: SMTP_HOST
+          value: "commonprod01.server.alexander-aust.de"
+        - name: SMTP_FROM_NAME
+          value: "Vaultwarden"
+        - name: SMTP_FROM
+          value: "no-reply@alexander-aust.de"
+        - name: SMTP_PORT
+          value: "587"
+        - name: SMTP_SECURITY
+          value: "starttls"
+        - name: SMTP_USERNAME
+          value: "no-reply@alexander-aust.de"
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: bitwarden-secret
+              key: smtp-password
+              optional: false
+        ports:
+        - name: http
+          containerPort: 80
+        volumeMounts:
+        - name: bitwarden-storage
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: bitwarden-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 500Mi
