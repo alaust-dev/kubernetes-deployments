@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: spotify-archiver
-          image: alaust/spotify-archiver:latest
+          image: alaust/spotify-archiver:1.0.0
           imagePullPolicy: Always
           env:
             - name: CLIENT_ID
