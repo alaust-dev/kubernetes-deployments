@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: wireguard
+  namespace: wireguard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wireguard
+  template:
+    metadata:
+      labels:
+        app: wireguard
+    spec:
+      containers:
+        - name: wireguard
+          image: weejewel/wg-easy
+          env:
+            - name: WG_HOST
+              value: "commonprod01.server.alexander-aust.de"
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wireguard-secret
+                  key: ui-password
+                  optional: false
+          ports:
+            - name: vpn
+              containerPort: 51820
+              protocol: UDP
+            - name: ui
+              containerPort: 51821
+              protocol: TCP
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN", "SYS_MODULE"]
+          volumeMounts:
+            - name: wireguard-config
+              mountPath: /etc/wireguard
+      securityContext:
+        sysctls:
+          - name: net.ipv4.ip_forward
+            value: "1"
+          - name: net.ipv4.conf.all.src_valid_mark
+            value: "1"
+  volumeClaimTemplates:
+    - metadata:
+        name: wireguard-config
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        volumeMode: Filesystem
+        resources:
+          requests:
+            storage: 512Mi
