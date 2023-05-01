@@ -1,6 +1,6 @@
 # kubernetes-deployments
 This repository contains all my Kubernetes deployments.
-I'm running my cluster on a single node using [Canal](https://docs.tigera.io/calico/latest/getting-started/kubernetes/flannel/install-for-flannel) as network plugin.
+I'm running my cluster on a single node using [Cilium](https://cilium.io/) as network plugin.
 
 My secrets are manage by the [HashiCorp Vault](https://developer.hashicorp.com/vault) in combination with the [External Secrets Operator](https://external-secrets.io/v0.8.1/).
 For every new Namespace you want to use secret from the Vault you have to set up a Secret Store.
