@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-logging
+    version: v1
+spec:
+  selector:
+    matchLabels:
+      k8s-app: fluentd-logging
+      version: v1
+  template:
+    metadata:
+      labels:
+        k8s-app: fluentd-logging
+        version: v1
+    spec:
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      serviceAccountName: fluentd-service-account
+      containers:
+        - name: fluentd
+          image: fluent/fluentd-kubernetes-daemonset:v1-debian-opensearch
+          env:
+            - name: K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name:  FLUENT_OPENSEARCH_HOST
+              value: "10.96.10.1"
+            - name:  FLUENT_OPENSEARCH_PORT
+              value: "9200"
+            - name: FLUENT_OPENSEARCH_SCHEME
+              value: "https"
+            - name: FLUENT_OPENSEARCH_SSL_VERIFY
+              value: "false"
+            - name: FLUENT_OPENSEARCH_SSL_VERSION
+              value: "TLSv1_2"
+            - name: FLUENT_OPENSEARCH_USER
+              value: "fluent"
+            - name: FLUENT_OPENSEARCH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fluentd-secret
+                  key: opensearch-password
+                  optional: false
+            - name: FLUENT_CONTAINER_TAIL_PARSER_TYPE
+              value: "cri"
+            - name: FLUENT_CONTAINER_TAIL_PARSER_TIME_FORMAT
+              value: "%Y-%m-%dT%H:%M:%S.%N%:z"
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+            - name: dockercontainerlogdirectory
+              mountPath: /var/log/pods
+              readOnly: true
+            - name: fluent-config
+              mountPath: /fluentd/etc/fluent.conf
+              subPath: fluent.conf
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: dockercontainerlogdirectory
+          hostPath:
+            path: /var/log/pods
+        - name: fluent-config
+          configMap:
+            name: fluentd
