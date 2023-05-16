@@ -44,6 +44,12 @@ spec:
         env:
           - name: "OPENSEARCH_HOSTS"
             value: '["https://10.96.10.1:9200"]'
+          - name: "opensearch.password"
+            valueFrom:
+              secretKeyRef:
+                name: dashboard-secret
+                key: opensearch-password
+                optional: false
       volumes:
         - name: opensearch-storage
           persistentVolumeClaim:
