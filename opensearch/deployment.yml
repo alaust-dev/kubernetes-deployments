@@ -44,7 +44,7 @@ spec:
         env:
           - name: "OPENSEARCH_HOSTS"
             value: '["https://10.96.10.1:9200"]'
-          - name: "opensearch.password"
+          - name: "OPENSEARCH_PASSWORD"
             valueFrom:
               secretKeyRef:
                 name: dashboard-secret
