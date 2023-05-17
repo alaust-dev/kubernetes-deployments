@@ -10,10 +10,16 @@ data:
     @include kubernetes.conf
     @include conf.d/*.conf
 
+    <filter **>
+      @type             dedot
+      de_dot            true
+      de_dot_separator  _
+      de_dot_nested     true
+    </filter>
     <match **>
       @type opensearch
       @id out_os
-      @log_level info
+      @log_level debug
       include_tag_key true
       host "#{ENV['FLUENT_OPENSEARCH_HOST']}"
       port "#{ENV['FLUENT_OPENSEARCH_PORT']}"

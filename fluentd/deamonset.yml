@@ -25,7 +25,8 @@ spec:
       serviceAccountName: fluentd-service-account
       containers:
         - name: fluentd
-          image: fluent/fluentd-kubernetes-daemonset:v1-debian-opensearch
+          image: alaust/fluentd:latest
+          imagePullPolicy: Always
           env:
             - name: K8S_NODE_NAME
               valueFrom:
