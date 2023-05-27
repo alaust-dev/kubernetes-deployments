@@ -4,7 +4,7 @@ metadata:
   name: vault-ui-entrypoint
   namespace: vault
 spec:
-  clusterIP: 10.96.7.10
+  clusterIP: 10.43.7.10
   selector:
     app: vault
   ports:

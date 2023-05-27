@@ -6,7 +6,7 @@ metadata:
 spec:
   selector:
     app: postfix
-  clusterIP: 10.96.1.10
+  clusterIP: 10.43.1.10
   ports:
   - name: smtp
     port: 25

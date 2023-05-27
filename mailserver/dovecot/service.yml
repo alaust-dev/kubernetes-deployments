@@ -6,7 +6,7 @@ metadata:
 spec:
   selector:
     app: dovecot
-  clusterIP: 10.96.1.11
+  clusterIP: 10.43.1.11
   ports:
   - name: auth-service
     port: 60400

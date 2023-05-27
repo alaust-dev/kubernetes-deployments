@@ -6,7 +6,7 @@ metadata:
 spec:
   selector:
     app: spotify-archiver
-  clusterIP: 10.96.5.10
+  clusterIP: 10.43.5.10
   ports:
     - name: health-endpoint
       port: 30100

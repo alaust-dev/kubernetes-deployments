@@ -4,7 +4,7 @@ metadata:
   name: vaultwarden-entrypoint
   namespace: bitwarden
 spec:
-  clusterIP: 10.96.8.10
+  clusterIP: 10.43.8.10
   selector:
     app: vaultwarden
   ports:

@@ -6,7 +6,7 @@ metadata:
 spec:
   selector:
     app: jenkins-server
-  clusterIP: 10.96.3.10
+  clusterIP: 10.43.3.10
   ports:
     - name: http
       port: 8080

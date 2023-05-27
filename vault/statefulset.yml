@@ -38,6 +38,8 @@ spec:
     - metadata:
         name: vault-storage
       spec:
+        storageClassName: ""
+        volumeName: vault-storage
         accessModes: ["ReadWriteOnce"]
         volumeMode: Filesystem
         resources:

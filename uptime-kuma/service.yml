@@ -4,7 +4,7 @@ metadata:
   name: uptime-kuma-service
   namespace: uptime-kuma
 spec:
-  clusterIP: 10.96.2.10
+  clusterIP: 10.43.2.10
   selector:
     app: uptime-kuma
   ports:
