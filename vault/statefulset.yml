@@ -19,7 +19,7 @@ spec:
             name: vault-config
       containers:
         - name: vault
-          image: vault
+          image: hashicorp/vault
           command: ["vault"]
           args: ["server", "-config=/vault/config/vault.hcl"]
           env:
