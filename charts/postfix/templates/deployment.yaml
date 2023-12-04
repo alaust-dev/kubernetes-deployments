@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      securityContext:
+        fsGroup: 102
+      volumes:
+        - name: {{ .Release.Name }}-config
+          configMap:
+            name: {{ .Release.Name }}-config
+        - name: {{ .Release.Name }}-secret
+          secret:
+            secretName: {{ .Release.Name }}-secret
+
+        - name: postfix-tls
+          secret:
+            secretName: postfix-tls
+
+        - name: {{ .Release.Name }}-storage
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc
+      containers:
+        - name: {{ .Release.Name }}
+          image: ghcr.io/alaust-dev/postfix:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: {{ .Release.Name }}-secret
+              mountPath: "/etc/postfix/smtpd-sender-login-maps"
+              subPath: smtpd-sender-login-maps
+            - name: {{ .Release.Name }}-secret
+              mountPath: "/etc/postfix/virtual-mailbox-maps"
+              subPath: virtual-mailbox-maps
+            - name: {{ .Release.Name }}-config
+              mountPath: "/etc/postfix/main.cf"
+              subPath: main.cf
+            - name: {{ .Release.Name }}-config
+              mountPath: "/etc/postfix/master.cf"
+              subPath: master.cf
+
+            - name: {{ .Release.Name }}-storage
+              mountPath: "/var/mail"
+
+            - name: {{ .Release.Name }}-config
+              mountPath: "/etc/opendkim/opendkim.conf"
+              subPath: opendekim.conf
+            - name: {{ .Release.Name }}-secret
+              mountPath: "/etc/opendkim/keys/alexander-aust.de/default.private"
+              subPath: default.private
+
+            - name: postfix-tls
+              mountPath: "/etc/postfix/tls.crt"
+              subPath: tls.crt
+            - name: postfix-tls
+              mountPath: "/etc/postfix/tls.key"
+              subPath: tls.key

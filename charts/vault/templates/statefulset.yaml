@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: configmap
+          configMap:
+            name: {{ .Release.Name }}-configmap
+      containers:
+        - name: vault
+          image: hashicorp/vault
+          command: ["vault"]
+          args: ["server", "-config=/vault/config/vault.hcl"]
+          env:
+            - name: VAULT_ADDR
+              value: http://0.0.0.0:8200
+          ports:
+            - name: ui
+              containerPort: {{ .Values.service.ports.ui }}
+          volumeMounts:
+            - name: {{ .Release.Name }}-storage
+              mountPath: /vault/file
+            - name: configmap
+              mountPath: /vault/config/vault.hcl
+              subPath: vault.hcl
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Release.Name }}-storage
+        namespace: {{ .Release.Namespace }}
+      spec:
+        storageClassName: local-path
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: {{ .Values.storage }}

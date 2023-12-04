@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: roundcube/roundcubemail:latest
+          imagePullPolicy: Always
+          env:
+            - name: ROUNDCUBEMAIL_DEFAULT_HOST
+              value: "ssl://commonprod01.server.alexander-aust.de"
+            - name: ROUNDCUBEMAIL_DEFAULT_PORT
+              value: "993"
+            - name: ROUNDCUBEMAIL_SMTP_SERVER
+              value: "tls://commonprod01.server.alexander-aust.de"
+            - name: ROUNDCUBEMAIL_DB_TYPE
+              value: pgsql
+            - name: ROUNDCUBEMAIL_DB_HOST
+              value: "postgresql-service.postgresql"
+            - name: ROUNDCUBEMAIL_DB_PORT
+              value: "5432"
+            - name: ROUNDCUBEMAIL_DB_NAME
+              value: roundcube
+            - name: ROUNDCUBEMAIL_DB_USER
+              value: roundcube
+            - name: ROUNDCUBEMAIL_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: db-password
+                  optional: false

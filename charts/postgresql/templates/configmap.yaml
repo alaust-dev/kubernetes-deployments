@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  namespace: {{ .Release.Namespace }}
+data:
+  pg_hba.conf: |
+    # TYPE    DATABASE        USER            ADDRESS                 METHOD
+    host      all             all             10.0.0.176/32           reject
+    host      all             postgres        127.0.0.1/32            password
+    host      mail_server     postfix         10.0.0.0/24             password
+    host      keycloak        keycloak        10.0.0.0/24             password
+    host      roundcube       roundcube       10.0.0.0/24             password
+  postgresql.conf: |
+    #------------------------------------------------------------------------------
+    # FILE LOCATIONS
+    #------------------------------------------------------------------------------
+    
+    hba_file = '/var/lib/postgresql/pg_hba.conf'
+    
+    #------------------------------------------------------------------------------
+    # CONNECTIONS AND AUTHENTICATION
+    #------------------------------------------------------------------------------
+    
+    # - Connection Settings -
+    listen_addresses = '*'
+    max_connections = 100
+    
+    # - SSL -
+    ssl = off
+    #ssl_cert_file = '/var/lib/postgresql/fullchain.pem'
+    #ssl_key_file = '/var/lib/postgresql/privkey.pem'
+    #ssl_ciphers = 'HIGH:MEDIUM:+3DES:!aNULL'
+    #ssl_prefer_server_ciphers = on
+    #ssl_ecdh_curve = 'prime256v1'
+    
+    #------------------------------------------------------------------------------
+    # RESOURCE USAGE (except WAL)
+    #------------------------------------------------------------------------------
+    
+    # - Memory -
+    shared_buffers = 128MB
+    dynamic_shared_memory_type = posix
+    
+    #------------------------------------------------------------------------------
+    # WRITE-AHEAD LOG
+    #------------------------------------------------------------------------------
+    
+    # - Checkpoints -
+    max_wal_size = 1GB
+    min_wal_size = 80MB
+    
+    #------------------------------------------------------------------------------
+    # REPORTING AND LOGGING
+    #------------------------------------------------------------------------------
+    
+    # - What to Log -
+    log_timezone = UTC
+    
+    #------------------------------------------------------------------------------
+    # CLIENT CONNECTION DEFAULTS
+    #------------------------------------------------------------------------------
+    
+    # - Locale and Formatting -
+    datestyle = 'iso, mdy'
+    timezone = UTC
+    lc_messages = 'en_US.utf8'
+    lc_monetary = 'en_US.utf8'
+    lc_numeric = 'en_US.utf8'
+    lc_time = 'en_US.utf8'
+    default_text_search_config = 'pg_catalog.english'

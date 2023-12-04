@@ -1,0 +1,8 @@
+service:
+  ports:
+    ui: 8200
+
+ingress:
+  host: vault.alexander-aust.de
+    
+storage: 5Gi

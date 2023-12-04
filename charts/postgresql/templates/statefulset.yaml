@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      securityContext:
+        fsGroup: 70
+      volumes:
+        - name: {{ .Release.Name }}-config
+          configMap:
+            name: {{ .Release.Name }}-config
+
+      containers:
+        - name: {{ .Release.Name }}
+          image: postgres:16.0-alpine3.18
+          imagePullPolicy: Always
+          args:
+            - "-c"
+            - "config_file=/var/lib/postgresql/postgresql.conf"
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: postgres-password
+                  optional: false
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - name: {{ .Release.Name }}-storage
+              mountPath: /var/lib/postgresql/data
+            - name: {{ .Release.Name }}-config
+              mountPath: /var/lib/postgresql/pg_hba.conf
+              subPath: pg_hba.conf
+            - name: {{ .Release.Name }}-config
+              mountPath: /var/lib/postgresql/postgresql.conf
+              subPath: postgresql.conf
+
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Release.Name }}-storage
+        namespace: {{ .Release.Namespace }}
+      spec:
+        storageClassName: local-path
+        accessModes: ["ReadWriteOnce"]
+        volumeMode: Filesystem
+        resources:
+          requests:
+            storage: {{ .Values.storage }}

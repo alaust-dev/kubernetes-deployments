@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      securityContext:
+        fsGroup: 102
+      volumes:
+        - name: {{ .Release.Name }}-config
+          configMap:
+            name: {{ .Release.Name }}-config
+        - name: {{ .Release.Name }}-secret
+          secret:
+            secretName: {{ .Release.Name }}-secret
+
+        - name: {{ .Values.certificate }}
+          secret:
+            secretName: {{ .Values.certificate }}
+
+        - name: postfix-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.storageClaim.postfix }}
+      containers:
+        - name: {{ .Release.Name }}
+          image: ghcr.io/alaust-dev/dovecot:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: {{ .Release.Name }}-config
+              mountPath: "/etc/dovecot/dovecot.conf"
+              subPath: {{ .Release.Name }}.conf
+            - name: {{ .Release.Name }}-secret
+              mountPath: "/etc/pam.d/keycloak"
+              subPath: keycloak
+
+            - name: {{ .Values.certificate }}
+              mountPath: "/etc/dovecot/tls.crt"
+              subPath: tls.crt
+            - name: {{ .Values.certificate }}
+              mountPath: "/etc/dovecot/tls.key"
+              subPath: tls.key
+
+            - name: postfix-storage
+              mountPath: "/srv/mail"

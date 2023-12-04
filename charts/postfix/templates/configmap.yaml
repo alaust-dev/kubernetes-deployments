@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  namespace: {{ .Release.Namespace }}
+data:
+  main.cf: |
+    inet_protocols = all
+    meta_directory = /etc/postfix
+    shlib_directory = /usr/lib/postfix
+    maillog_file = /dev/stdout
+    disable_vrfy_command = yes
+    always_add_missing_headers = yes
+    myhostname = commonprod01.server.alexander-aust.de
+    mydomain = commonprod01.server.alexander-aust.de
+    myorigin = $mydomain
+    mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
+    mydestination = localhost
+    virtual_mailbox_domains = alexander-aust.de
+    virtual_mailbox_base = /var/mail/users
+    virtual_mailbox_maps = pgsql:/etc/postfix/virtual-mailbox-maps
+    virtual_minimum_uid = 100
+    virtual_uid_maps = static:101
+    virtual_gid_maps = static:102
+    smtp_use_tls = yes
+    smtp_tls_loglevel = 1
+    smtp_tls_cert_file = /etc/postfix/tls.crt
+    smtp_tls_key_file = /etc/postfix/tls.key
+    smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+    smtp_tls_security_level = encrypt
+    smtp_host_lookup = native,dns
+    smtp_helo_name = $mydomain
+    smtpd_helo_required = yes
+    smtpd_sender_restrictions= reject_sender_login_mismatch reject_unlisted_sender
+    smtpd_recipient_restrictions = permit_sasl_authenticated
+        reject_unauth_destination
+        reject_unknown_client_hostname
+        reject_unknown_sender_domain
+        reject_unauth_pipelining
+    smtpd_relay_restrictions=permit_sasl_authenticated,defer_unauth_destination
+    smtpd_client_connection_rate_limit = 30
+    smtpd_client_message_rate_limit = 20
+    smtpd_sasl_security_options=noanonymous
+    smtpd_sasl_path=inet:dovecot-service:60400
+    smtpd_sasl_type=dovecot
+    smtpd_sender_login_maps=pgsql:/etc/postfix/smtpd-sender-login-maps
+    smtpd_reject_unlisted_sender = yes
+    smtpd_tls_cert_file = /etc/postfix/tls.crt
+    smtpd_tls_key_file = /etc/postfix/tls.key
+    smtpd_tls_security_level = encrypt
+    milter_default_action = accept
+    milter_protocol = 6
+    smtpd_milters = inet:localhost:8891
+    non_smtpd_milters = inet:localhost:8891
+  master.cf: |
+    submission inet n - n - - smtpd
+      -o syslog_name=postfix/submission
+      -o smtpd_sasl_auth_enable=yes
+    smtpd     pass  -       -       n       -       -       smtpd
+    smtp      inet  n       -       n       -       1       postscreen
+    pickup    unix  n       -       n       60      1       pickup
+    cleanup   unix  n       -       n       -       0       cleanup
+    qmgr      unix  n       -       n       300     1       qmgr
+    tlsmgr    unix  -       -       n       1000?   1       tlsmgr
+    rewrite   unix  -       -       n       -       -       trivial-rewrite
+    bounce    unix  -       -       n       -       0       bounce
+    defer     unix  -       -       n       -       0       bounce
+    trace     unix  -       -       n       -       0       bounce
+    verify    unix  -       -       n       -       1       verify
+    flush     unix  n       -       n       1000?   0       flush
+    proxymap  unix  -       -       n       -       -       proxymap
+    proxywrite unix -       -       n       -       1       proxymap
+    smtp      unix  -       -       n       -       -       smtp
+    relay     unix  -       -       n       -       -       smtp
+            -o syslog_name=postfix/$service_name
+    showq     unix  n       -       n       -       -       showq
+    error     unix  -       -       n       -       -       error
+    retry     unix  -       -       n       -       -       error
+    discard   unix  -       -       n       -       -       discard
+    local     unix  -       n       n       -       -       local
+    virtual   unix  -       n       n       -       -       virtual
+    lmtp      unix  -       -       n       -       -       lmtp
+    anvil     unix  -       -       n       -       1       anvil
+    scache    unix  -       -       n       -       1       scache
+    postlog   unix-dgram n  -       n       -       1       postlogd
+  opendekim.conf: |
+    Syslog                  yes
+    SyslogSuccess           yes
+    RequireSafeKeys         False
+    Canonicalization        relaxed/simple
+    Domain			        alexander-aust.de
+    Selector		        default
+    KeyFile			        /etc/opendkim/keys/alexander-aust.de/default.private
+    Mode                    sv
+    SubDomains              yes
+    OversignHeaders         From
+    Socket                  inet:8891@localhost
+    ReportAddress           mail@alexander-aust.de
+    SendReports             yes

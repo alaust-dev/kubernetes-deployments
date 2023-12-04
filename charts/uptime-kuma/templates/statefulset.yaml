@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: louislam/uptime-kuma:latest
+          imagePullPolicy: Always
+          env:
+            - name: UPTIME_KUMA_PORT
+              value: "3001"
+            - name: PORT
+              value: "3001"
+          volumeMounts:
+            - name: {{ .Release.Name }}-storage
+              mountPath: /app/data
+
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Release.Name }}-storage
+      spec:
+        storageClassName: local-path
+        accessModes: ["ReadWriteOnce"]
+        volumeMode: Filesystem
+        resources:
+          requests:
+            storage: 1Gi
