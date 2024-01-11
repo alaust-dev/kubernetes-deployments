@@ -11,6 +11,7 @@ data:
     host      mail_server     postfix         10.0.0.0/24             password
     host      keycloak        keycloak        10.0.0.0/24             password
     host      roundcube       roundcube       10.0.0.0/24             password
+    host      nextcloud       nextcloud       10.0.0.0/24             password
   postgresql.conf: |
     #------------------------------------------------------------------------------
     # FILE LOCATIONS
