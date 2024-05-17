@@ -9,4 +9,4 @@ spec:
     app: {{ .Release.Name }}
   ports:
     - name: mc
-      port: 25565
+      port: 25560
